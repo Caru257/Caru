@@ -1,0 +1,91 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+
+const OvulationCalculator = () => {
+  const [cycleLength, setCycleLength] = useState(28);
+  const [lastPeriodDay, setLastPeriodDay] = useState('');
+  const [lastPeriodMonth, setLastPeriodMonth] = useState('');
+  const [lastPeriodYear, setLastPeriodYear] = useState('');
+  const [result, setResult] = useState('');
+
+  const calculateOvulation = () => {
+    if (!lastPeriodDay || !lastPeriodMonth || !lastPeriodYear) {
+      setResult('Veuillez remplir tous les champs.');
+      return;
+    }
+
+    const lastPeriodDate = new Date(`${lastPeriodYear}-${lastPeriodMonth}-${lastPeriodDay}`);
+    const ovulationDate = new Date(lastPeriodDate.getTime() + (cycleLength - 14) * 24 * 60 * 60 * 1000);
+    const fertilePeriodStart = new Date(ovulationDate.getTime() - 5 * 24 * 60 * 60 * 1000);
+    const fertilePeriodEnd = new Date(ovulationDate.getTime() + 1 * 24 * 60 * 60 * 1000);
+
+    setResult(`Date d'ovulation estimÃ©e : ${ovulationDate.toLocaleDateString('fr-FR')}
+    PÃ©riode fertile : du ${fertilePeriodStart.toLocaleDateString('fr-FR')} au ${fertilePeriodEnd.toLocaleDateString('fr-FR')}`);
+  };
+
+  return (
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>Calculateur d'ovulation</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div>
+            <label className="block mb-2">DurÃ©e du cycle menstruel en jours :</label>
+            <Select onValueChange={(value) => setCycleLength(Number(value))}>
+              <SelectTrigger>
+                <SelectValue placeholder={cycleLength} />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({length: 15}, (_, i) => i + 21).map(days => (
+                  <SelectItem key={days} value={days.toString()}>{days}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="block mb-2">Premier jour des derniÃ¨res rÃ¨gles :</label>
+            <div className="grid grid-cols-3 gap-2">
+              <Select onValueChange={setLastPeriodDay}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Jour" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({length: 31}, (_, i) => i + 1).map(day => (
+                    <SelectItem key={day} value={day.toString()}>{day}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select onValueChange={setLastPeriodMonth}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Mois" />
+                </SelectTrigger>
+                <SelectContent>
+                  {['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map(month => (
+                    <SelectItem key={month} value={month}>{month}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select onValueChange={setLastPeriodYear}>
+                <SelectTrigger>
+                  <SelectValue placeholder="AnnÃ©e" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[2023, 2024, 2025].map(year => (
+                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <Button onClick={calculateOvulation} className="w-full">Calculer</Button>
+          {result && <div className="mt-4 p-4 bg-gray-100 rounded-md">{result}</div>}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default OvulationCalculator;
